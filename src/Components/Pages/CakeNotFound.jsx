@@ -81,7 +81,7 @@ export const CakeNotFound = ({
         </div>
 
         {/* Декоративные точки (фирменный стиль Cake) */}
-        <div className="mt-12  mb-16 flex justify-center gap-3">
+        <div className="mt-12 flex justify-center gap-3">
           {[...Array(3)].map((_, i) => (
             <div key={i} className={`w-2.5 h-2.5 rounded-full bg-current opacity-${20 + (i * 20)} ${themeColor}`}></div>
           ))}
@@ -89,7 +89,7 @@ export const CakeNotFound = ({
 
         {/* --- СЕКЦИЯ КАТЕГОРИЙ (Опционально) --- */}
         {categories.length > 0 && (
-          <div className="border-t border-gray-200 pt-12 animate-fade-in-up">
+          <div className="mt-6 pt-6 animate-fade-in-up">
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-8 text-center">
               {categories_title}
             </h2>
