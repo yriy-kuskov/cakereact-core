@@ -18,6 +18,16 @@ export const CakeNotFound = ({
 }) => {
   const navigate = useNavigate();
 
+  const handleBack = () => {
+    // Если в истории больше 2 записей (текущая + предыдущая), идем назад.
+    // Иначе — принудительно на главную (или homePath), чтобы не «зависать»
+    if (window.history.length > 2) {
+      navigate(-1);
+    } else {
+      navigate(homePath);
+    }
+  };
+
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 animate-fade-in">
       <div className="max-w-md w-full text-center">
@@ -49,7 +59,7 @@ export const CakeNotFound = ({
         {/* Группа кнопок навигации */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
           <button
-            onClick={() => navigate(-1)}
+            onClick={handleBack}
             className="w-full sm:w-auto px-8 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all active:scale-95"
           >
             Назад
