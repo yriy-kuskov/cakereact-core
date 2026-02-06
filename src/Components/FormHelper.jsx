@@ -232,3 +232,12 @@ export const CakeMultiSelect = ({ field, label, model, options = [], displayFiel
     </div>
   );
 };
+
+export const CakeSubmit = ({ children, className, ...props }) => {
+  const { loading } = useContext(CakeContext);
+  return (
+    <button type="submit" disabled={loading} className={className} {...props}>
+      {loading ? 'Запекаем...' : children}
+    </button>
+  );
+};
