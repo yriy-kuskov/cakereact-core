@@ -28,6 +28,10 @@ export const CakeNotFound = ({
     }
   };
 
+  useEffect(() => {
+    document.title = `${title} | CakeReact`;
+  }, [title]);
+
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 animate-fade-in">
       <div className="max-w-md w-full text-center">
