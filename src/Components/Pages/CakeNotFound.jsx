@@ -93,7 +93,7 @@ export const CakeNotFound = ({
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-8 text-center">
               {categories_title}
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4">
+            <div className="grid grid-cols-2 gap-4 px-4">
               {categories.map((cat, idx) => (
                 <Link
                   key={idx}
