@@ -37,7 +37,7 @@ export const CakeNotFound = ({
   }, [title]);
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 animate-fade-in">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 animate-fade-in">
       <div className="max-w-md w-full text-center">
         
         {/* Центральный визуальный блок */}
