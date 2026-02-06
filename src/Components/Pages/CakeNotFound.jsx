@@ -1,12 +1,13 @@
 import React from 'react';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 /**
  * Универсальная страница 404 для CakeReact
  * @param {string} icon - Emoji или текст для центрального блока
  * @param {string} imageSrc - Путь к картинке (если нужна вместо иконки)
  * @param {string} themeColor - Tailwind класс для акцентного цвета (например, 'text-rose-500')
+ * @param {Array} categories - Массив объектов { name: 'Еда', path: '/food', icon: '🍕' }
  */
 export const CakeNotFound = ({ 
   title = "Упс! Страница не найдена", 
@@ -15,6 +16,8 @@ export const CakeNotFound = ({
   homePath = "/",
   icon = "404",
   imageSrc = null,
+  categories = [], // Опциональный список категорий
+  categories_title = "Популярные разделы",
   themeColor = "text-indigo-600"
 }) => {
   const navigate = useNavigate();
@@ -83,6 +86,32 @@ export const CakeNotFound = ({
             <div key={i} className={`w-2.5 h-2.5 rounded-full bg-current opacity-${20 + (i * 20)} ${themeColor}`}></div>
           ))}
         </div>
+
+        {/* --- СЕКЦИЯ КАТЕГОРИЙ (Опционально) --- */}
+        {categories.length > 0 && (
+          <div className="border-t border-gray-200 pt-12 animate-fade-in-up">
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-8 text-center">
+              {categories_title}
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4">
+              {categories.map((cat, idx) => (
+                <Link
+                  key={idx}
+                  to={cat.path}
+                  className="flex flex-col items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-200 hover:-translate-y-1 transition-all group"
+                >
+                  <span className="text-3xl mb-3 group-hover:scale-110 transition-transform">
+                    {cat.icon || '📁'}
+                  </span>
+                  <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-600">
+                    {cat.name}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
