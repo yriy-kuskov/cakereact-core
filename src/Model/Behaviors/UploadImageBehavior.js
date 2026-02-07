@@ -120,6 +120,7 @@ export class UploadImageBehavior {
     for (const field of Object.keys(this.fieldConfig)) {
       if (record[field]) {
         await this.deleteFile(record[field]);
+        console.log(`[UploadImageBehavior] Удаляем файл для поля: ${record[field]}`);
       }
     }
   }
