@@ -21,6 +21,16 @@ export class UploadImageBehavior {
    * @param {Object} model - Экземпляр модели (для поиска старых данных)
    */
   async processUploads(data, model) {
+    // 1. Загружаем старую запись один раз, если это редактирование
+    let oldRecord = null;
+    if (data[model.primaryKey]) {
+      try {
+        oldRecord = await model.findById(data[model.primaryKey]);
+      } catch (e) {
+        console.warn("Не удалось найти старую запись для очистки файлов", e);
+      }
+    }
+
     for (const [field, settings] of Object.entries(this.fieldConfig)) {
       let file = data[field];
 
@@ -34,10 +44,12 @@ export class UploadImageBehavior {
         }
 
         // Удаление старого файла при обновлении
-        if (data[model.primaryKey]) {
-          const oldRecord = await model.findById(data[model.primaryKey]);
-          if (oldRecord && oldRecord[field]) {
-            await this.deleteFile(oldRecord[field]);
+        // 2. Используем уже загруженную oldRecord
+        if (oldRecord && oldRecord[field]) {
+          // Важно: проверяем, изменился ли файл. Если загружают тот же самый - не удаляем.
+          // Хотя input type="file" обычно не дает выбрать "текущий URL", проверка не помешает.
+          if (oldRecord[field] !== file) { 
+             await this.deleteFile(oldRecord[field]);
           }
         }
 
@@ -69,11 +81,33 @@ export class UploadImageBehavior {
   async deleteFile(url) {
     if (!url || typeof url !== 'string') return;
     try {
-      const pathParts = url.split(`${this.bucket}/`);
-      if (pathParts.length < 2) return;
-      const filePath = pathParts[1];
+      // 1. Убираем всё, что идет после знака вопроса (query params) или решетки
+      // Например: image.jpg?t=123 -> image.jpg
+      const cleanUrl = url.split('?')[0].split('#')[0];
 
-      await this.db.storage.from(this.bucket).remove([filePath]);
+      // 2. Разбиваем по имени бакета
+      // Используем `${this.bucket}/` как разделитель
+      const pathParts = cleanUrl.split(`${this.bucket}/`);
+      
+      // Если разделитель не найден или это не та ссылка, выходим
+      if (pathParts.length < 2) {
+         console.warn(`[UploadImageBehavior] Не удалось распарсить URL для удаления: ${url}`);
+         return;
+      }
+
+      // 3. Берем часть пути после бакета
+      // ВАЖНО: Декодируем URI (превращаем %20 обратно в пробелы, русские буквы и т.д.)
+      const rawPath = pathParts.slice(1).join(`${this.bucket}/`); // join на случай, если имя бакета встречается в пути дважды (редко, но бывает)
+      const filePath = decodeURIComponent(rawPath);
+
+      console.log(`[UploadImageBehavior] Удаляем файл: ${filePath}`);
+
+      const { error } = await this.db.storage
+        .from(this.bucket)
+        .remove([filePath]);
+
+      if (error) throw error;
+      
     } catch (e) {
       console.warn("Файл не удален из storage:", e);
     }
