@@ -28,7 +28,7 @@ export const CakeReact = {
   // Получение плагина в любой части кода
   plugin(name) {
     const p = this._plugins[name];
-    if (!p) console.warn(`[CakeReact] Плагин ${name} не зарегистрирован.`);
+    if (!p) console.warn(`[🎂 CakeReact] Плагин ${name} не зарегистрирован.`);
     return p;
   }
 };

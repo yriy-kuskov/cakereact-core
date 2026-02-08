@@ -27,7 +27,7 @@ export class UploadImageBehavior {
       try {
         oldRecord = await model.findById(data[model.primaryKey]);
       } catch (e) {
-        console.warn("Не удалось найти старую запись для очистки файлов", e);
+        console.warn("[🎂 CakeReact -> UploadImageBehavior]: Не удалось найти старую запись для очистки файлов", e);
       }
     }
 
@@ -91,7 +91,7 @@ export class UploadImageBehavior {
       
       // Если разделитель не найден или это не та ссылка, выходим
       if (pathParts.length < 2) {
-         console.warn(`[UploadImageBehavior] Не удалось распарсить URL для удаления: ${url}`);
+         console.warn(`[🎂 CakeReact -> UploadImageBehavior]: Не удалось распарсить URL для удаления: ${url}`);
          return;
       }
 
@@ -100,7 +100,7 @@ export class UploadImageBehavior {
       const rawPath = pathParts.slice(1).join(`${this.bucket}/`); // join на случай, если имя бакета встречается в пути дважды (редко, но бывает)
       const filePath = decodeURIComponent(rawPath);
 
-      console.log(`[UploadImageBehavior] Удаляем файл: ${filePath}`);
+      console.log(`[🎂 CakeReact -> UploadImageBehavior]: Удаляем файл: ${filePath}`);
 
       const { error } = await this.db.storage
         .from(this.bucket)
@@ -109,7 +109,7 @@ export class UploadImageBehavior {
       if (error) throw error;
       
     } catch (e) {
-      console.warn("Файл не удален из storage:", e);
+      console.warn("[🎂 CakeReact -> UploadImageBehavior]: Файл не удален из storage:", e);
     }
   }
 
@@ -120,7 +120,7 @@ export class UploadImageBehavior {
     for (const field of Object.keys(this.fieldConfig)) {
       if (record[field]) {
         await this.deleteFile(record[field]);
-        console.log(`[UploadImageBehavior] Удаляем файл для поля: ${record[field]}`);
+        console.log(`[🎂 CakeReact -> UploadImageBehavior]: Удаляем файл для поля: ${record[field]}`);
       }
     }
   }

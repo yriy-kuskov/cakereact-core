@@ -16,7 +16,7 @@ export const useController = (model) => {
       return result;
     } catch (err) {
       setError(err.message);
-      console.error(`[CakeReact] Error in getList:`, err);
+      console.error(`[🎂 CakeReact -> useController]: Error in getList:`, err);
     } finally {
       setLoading(false);
     }
@@ -32,7 +32,7 @@ export const useController = (model) => {
       return result;
     } catch (err) {
       setError(err.message);
-      console.error(`[CakeReact] Error in getRecord:`, err);
+      console.error(`[🎂 CakeReact -> useController]: Error in getRecord:`, err);
     } finally {
       setLoading(false);
     }

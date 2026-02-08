@@ -67,7 +67,7 @@ export const ImageOptimizer = {
               lastModified: Date.now(),
             });
 
-            console.log(`[ImageOptimizer] Сжато: ${(file.size / 1024).toFixed(0)}KB -> ${(optimizedFile.size / 1024).toFixed(0)}KB`);
+            console.log(`[🎂 CakeReact -> ImageOptimizer] Сжато: ${(file.size / 1024).toFixed(0)}KB -> ${(optimizedFile.size / 1024).toFixed(0)}KB`);
             resolve(optimizedFile);
 
           }, settings.mimeType, settings.quality);
