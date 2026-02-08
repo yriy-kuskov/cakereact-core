@@ -1,6 +1,6 @@
 import { CakeReact } from '../index';
 
-export class BaseModel {
+export default class BaseModel {
   constructor(table, config = {}) {
     this.table = table;
     this.primaryKey = config.primaryKey || 'id';
