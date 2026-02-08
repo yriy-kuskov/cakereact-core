@@ -1,4 +1,4 @@
-import { CakeReact } from '../index';
+import { CakeReact } from '../CakeReactCore'; // Прямой импорт!
 
 export class BaseModel {
   constructor(table, config = {}) {
