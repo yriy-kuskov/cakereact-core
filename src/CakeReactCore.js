@@ -9,7 +9,7 @@ export const CakeReact = {
     },
   
     // Метод для получения клиента внутри движка
-    getService: () => {
+    getService() {
       if (!this._service) {
         throw new Error('❌ CakeReact: Supabase не инициализирован. Вызовите CakeReact.init(supabase) в начале приложения.');
       }
