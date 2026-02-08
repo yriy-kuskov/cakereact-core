@@ -1,7 +1,7 @@
 // src/cakereact/src/Model/Behaviors/UploadImageBehavior.js
 import { CakeReact } from '../../index';
 
-export default class UploadImageBehavior {
+export class UploadImageBehavior {
   /**
    * @param {Object} config - { db_field: { folder: '...', transformers: [...] } }
    * @param {string} bucket - Бакет в Supabase
