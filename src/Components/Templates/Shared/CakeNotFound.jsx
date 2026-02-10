@@ -9,8 +9,8 @@ import { useNavigate, Link } from 'react-router-dom';
  * @param {string} themeColor - Tailwind класс для акцентного цвета (например, 'text-rose-500')
  * @param {Array} categories - Массив объектов { name: 'Еда', path: '/food', icon: '🍕' }
  */
-export const CakeNotFound = ({ 
-  title = "Упс! Страница не найдена", 
+export const CakeNotFound = ({
+  title = "Упс! Страница не найдена",
   message = "Похоже, этот «ингредиент» еще не добавили в наш рецепт. Возможно, адрес был изменен или страница была перемещена.",
   buttonText = "Вернуться домой",
   homePath = "/",
@@ -39,7 +39,7 @@ export const CakeNotFound = ({
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 animate-fade-in">
       <div className="max-w-md w-full text-center">
-        
+
         {/* Центральный визуальный блок */}
         <div className="mb-8 relative flex justify-center">
           {imageSrc ? (
@@ -59,7 +59,7 @@ export const CakeNotFound = ({
         <h1 className="text-3xl font-bold text-gray-900 mb-4 px-2">
           {title}
         </h1>
-        
+
         <p className="text-gray-600 mb-8 leading-relaxed px-4 text-sm sm:text-base">
           {message}
         </p>

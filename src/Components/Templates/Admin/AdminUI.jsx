@@ -1,5 +1,5 @@
 import React from 'react';
-import { CakeSubmit } from './FormHelper';
+import { CakeSubmit } from '../../Form/FormHelper';
 
 // --- 1. Обертка всей страницы ---
 export const AdminPage = ({ children }) => (
@@ -36,7 +36,7 @@ export const AdminFormSection = ({ controller, title, children, submitLabel = "�
           <span className="mr-2 text-xl">{isEditMode ? '✏️' : '➕'}</span>
           {isEditMode ? `Редактирование: ${title}` : `Создать: ${title}`}
         </h3>
-        
+
         {isEditMode && (
           <button onClick={handleCancel} className="text-sm text-gray-500 hover:text-red-600 transition-colors">
             Отменить
@@ -50,15 +50,14 @@ export const AdminFormSection = ({ controller, title, children, submitLabel = "�
       {/* Кнопки действий */}
       <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
         {!isEditMode && record && Object.keys(record).length > 0 && (
-           <button onClick={handleCancel} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-800">
-             Очистить
-           </button>
+          <button onClick={handleCancel} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-800">
+            Очистить
+          </button>
         )}
-        <CakeSubmit className={`inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white focus:outline-none transition-colors ${
-          isEditMode 
-            ? 'bg-amber-600 hover:bg-amber-700' 
-            : 'bg-indigo-600 hover:bg-indigo-700'
-        }`}>
+        <CakeSubmit className={`inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white focus:outline-none transition-colors ${isEditMode
+          ? 'bg-amber-600 hover:bg-amber-700'
+          : 'bg-indigo-600 hover:bg-indigo-700'
+          }`}>
           {isEditMode ? 'Сохранить изменения' : submitLabel}
         </CakeSubmit>
       </div>
@@ -114,7 +113,7 @@ export const AdminTableSection = ({ controller, title, columns, onEdit }) => {
                     {col.render ? col.render(item) : item[col.key]}
                   </td>
                 ))}
-                
+
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button onClick={() => onEdit(item)} className="text-indigo-600 hover:text-indigo-900 mr-4">
                     Изменить

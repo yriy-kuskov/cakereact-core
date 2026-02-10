@@ -1,14 +1,20 @@
 {
-  "name": "cakereact-core",
+  "name": "@cakereact/core",
   "version": "0.1.0",
   "description": "Core framework for CakeReact",
   "main": "src/index.js",
   "type": "module",
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "scripts": {
     "test": "echo \"No tests yet\""
   },
-  "keywords": ["react", "framework", "cakereact"],
+  "keywords": [
+    "react",
+    "framework",
+    "cakereact"
+  ],
   "author": "Yriy Kuskov",
   "license": "MIT",
   "repository": {
