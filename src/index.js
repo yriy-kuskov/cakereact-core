@@ -4,3 +4,4 @@ export * from './Model';
 export * from './Utils';
 export * from './Controller';
 export * from './Components';
+export * from './Storage';

@@ -1,4 +1,5 @@
 // src/cakereact/src/Model/Behaviors/UploadImageBehavior.js
+// TODO: переписать, используя Storage адаптеры - этот behavior должен быть универсальным: либо загружать с помощью указанного явно адаптера, либо использовать адаптер по-умолчанию default
 import { CakeReact } from '../../index';
 
 export class UploadImageBehavior {
@@ -7,7 +8,7 @@ export class UploadImageBehavior {
    * @param {string} bucket - Бакет в Supabase
    */
   constructor(config = {}, bucket = 'images') {
-    this.fieldConfig = config; 
+    this.fieldConfig = config;
     this.bucket = bucket;
   }
 
@@ -48,8 +49,8 @@ export class UploadImageBehavior {
         if (oldRecord && oldRecord[field]) {
           // Важно: проверяем, изменился ли файл. Если загружают тот же самый - не удаляем.
           // Хотя input type="file" обычно не дает выбрать "текущий URL", проверка не помешает.
-          if (oldRecord[field] !== file) { 
-             await this.deleteFile(oldRecord[field]);
+          if (oldRecord[field] !== file) {
+            await this.deleteFile(oldRecord[field]);
           }
         }
 
@@ -88,11 +89,11 @@ export class UploadImageBehavior {
       // 2. Разбиваем по имени бакета
       // Используем `${this.bucket}/` как разделитель
       const pathParts = cleanUrl.split(`${this.bucket}/`);
-      
+
       // Если разделитель не найден или это не та ссылка, выходим
       if (pathParts.length < 2) {
-         console.warn(`[🎂 CakeReact -> UploadImageBehavior]: Не удалось распарсить URL для удаления: ${url}`);
-         return;
+        console.warn(`[🎂 CakeReact -> UploadImageBehavior]: Не удалось распарсить URL для удаления: ${url}`);
+        return;
       }
 
       // 3. Берем часть пути после бакета
@@ -107,7 +108,7 @@ export class UploadImageBehavior {
         .remove([filePath]);
 
       if (error) throw error;
-      
+
     } catch (e) {
       console.warn("[🎂 CakeReact -> UploadImageBehavior]: Файл не удален из storage:", e);
     }

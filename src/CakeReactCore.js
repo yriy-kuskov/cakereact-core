@@ -3,12 +3,7 @@ export const CakeReact = {
   _plugins: {},
   _events: {},
   _connections: {},
-
-  // Старый метод init оставим для совместимости, но он будет создавать 'default'
-  init(instance) {
-    this.addConnection('default', instance);
-    console.log('[🎂CakeReact]: Default connection initialized');
-  },
+  _storages: {},
 
   addConnection(name, { client, adapter }) {
     // Мы сохраняем и сам клиент, и адаптер, который умеет с ним работать
@@ -20,6 +15,17 @@ export const CakeReact = {
 
   getAdapter(name = 'default') {
     return this._connections[name].adapter;
+  },
+
+  // Регистрация хранилища
+  addStorage(name, { client, adapter, bucket }) {
+    this._storages[name] = new adapter(client, bucket);
+  },
+
+  // Доступ к хранилищу
+  storage(name = 'default') {
+    if (!this._storages[name]) throw new Error(`Storage "${name}" not found.`);
+    return this._storages[name];
   },
 
   // Метод для получения клиента внутри движка
