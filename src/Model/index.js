@@ -1,3 +1,4 @@
 export * from './BaseModel';
 export * from './Behaviors';
-// и т.д.
+export * from './Validation';
+export * from './Adapters';
