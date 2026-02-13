@@ -1,3 +1,5 @@
+import { ValidationRules } from "../../index";
+
 export class Validator {
     constructor() {
         this._rules = {}; // { field: [ { rule, message, params }, ... ] }

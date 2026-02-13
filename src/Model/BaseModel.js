@@ -1,7 +1,8 @@
 import { CakeReact } from '../CakeReactCore'; // Прямой импорт!
-import { Validator } from '../index';
+import { Validator, BaseEntity } from '../index';
 
 export class BaseModel {
+  //TODO: В модели можно будет указывать правила сортировки в конфигах: belongsTo, hasMany, belongsToMany, и адаптер будет их считывать. Но пока вариант А — самый простой и рабочий для текущей архитектуры.
   constructor(table, config = {}) {
     this.table = table;
     this.primaryKey = config.primaryKey || 'id';
@@ -10,6 +11,7 @@ export class BaseModel {
     // Инициализация связей в стиле CakePHP
     this.belongsTo = config.belongsTo || {};
     this.hasMany = config.hasMany || {};
+    this.belongsToMany = config.belongsToMany || {};
 
     this._validator = null;
 
@@ -19,40 +21,6 @@ export class BaseModel {
   get adapter() {
     return CakeReact.getAdapter(this.connectionName);
   }
-
-  /**
-   * Геттер для доступа к Supabase через централизованный сервис CakeReact.
-   * Это позволяет модели не зависеть от путей импорта в конкретном проекте.
-   */
-  /* DELETE!
-  get db() {
-    return CakeReact.getService();
-  }
-    */
-
-  /**
-   * Генерирует строку запроса для Supabase на основе связей (JOIN-ы)
-   * Аналог автоматического fetch-а в CakePHP
-   */
-  /* DELETE!
-  _buildSelectQuery() {
-    let query = '*';
-
-    // Добавляем связи belongsTo: 'stores(*)'
-    Object.keys(this.belongsTo).forEach(alias => {
-      const relation = this.belongsTo[alias];
-      query += `, ${relation.table}(*)`;
-    });
-
-    // Добавляем связи hasMany: 'deals(*)'
-    Object.keys(this.hasMany).forEach(alias => {
-      const relation = this.hasMany[alias];
-      query += `, ${relation.table}(*)`;
-    });
-
-    return query;
-  }
-    */
 
   // Метод для настройки валидации (аналог validationDefault в CakePHP)
   get validator() {
@@ -68,37 +36,19 @@ export class BaseModel {
     return validator;
   }
 
-  // Найти все записи с учетом связей
-  /* DELETE!
-  async find(options = {}) {
-    let query = this.db // Используем динамический клиент
-      .from(this.table)
-      .select(this._buildSelectQuery());
-
-    if (options.where) {
-      Object.keys(options.where).forEach(key => {
-        query = query.eq(key, options.where[key]);
-      });
-    }
-
-    if (options.limit) query = query.limit(options.limit);
-    if (options.order) {
-      const [column, direction] = options.order;
-      query = query.order(column, { ascending: direction === 'asc' });
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
-    return data;
+  // Позволяет указать свой класс Entity для конкретной модели
+  getEntityClass() {
+    return BaseEntity;
   }
-    */
 
+  /*// Найти все записи с учетом связей
   async find(options = {}) {
     console.log(`[🎂 CakeReact]:new find method`);
     // Передаем таблицу и описание связей адаптеру
     return await this.adapter.find(this.table, options, {
       belongsTo: this.belongsTo,
-      hasMany: this.hasMany
+      hasMany: this.hasMany,
+      belongsToMany: this.belongsToMany
     });
   }
 
@@ -106,8 +56,140 @@ export class BaseModel {
   async findById(id) {
     return await this.adapter.findById(this.table, id, this.primaryKey, {
       belongsTo: this.belongsTo,
-      hasMany: this.hasMany
+      hasMany: this.hasMany,
+      belongsToMany: this.belongsToMany
     });
+  }*/
+
+  /**
+   * Основной метод поиска
+   */
+  // src/Model/BaseModel.js
+
+  async find(options = {}) {
+    // Передаем options.contain (список нужных связей) в _getRelations
+    const relations = this._getRelations(options.contain || null);
+
+    const rawData = await this.adapter.find(this.table, options, relations);
+
+    const normalizedData = rawData.map(row => this._normalizeRow(row));
+    const EntityClass = this.getEntityClass();
+    return normalizedData.map(row => new EntityClass(row, { source: this }));
+  }
+
+  async findById(id, options = {}) {
+    // То же самое для поиска по ID
+    const relations = this._getRelations(options.contain || null);
+
+    const rawRow = await this.adapter.findById(this.table, id, this.primaryKey, relations);
+
+    const normalizedRow = this._normalizeRow(rawRow);
+    const EntityClass = this.getEntityClass();
+    return new EntityClass(normalizedRow, { source: this });
+  }
+
+  /**
+   * УНИВЕРСАЛЬНЫЙ НОРМАЛИЗАТОР
+   * Превращает: { model_files: [{ sort: 1, files: {url: '...'} }] }
+   * В: { images: [{ url: '...', _joinData: { sort: 1 } }] }
+   */
+  _normalizeRow(row) {
+    if (!row) return row;
+    const processed = { ...row };
+
+    // Проходимся по всем настроенным связям belongsToMany
+    if (this.belongsToMany) {
+      Object.entries(this.belongsToMany).forEach(([alias, config]) => {
+        // Ищем в ответе поле, соответствующее названию промежуточной таблицы (through)
+        // Supabase возвращает данные именно под этим ключом (например, 'model_files')
+        // Или под алиасом, если адаптер его использовал.
+
+        // В нашем текущем адаптере мы не используем алиасы при запросе pivot, 
+        // поэтому данные придут в поле config.through (например, 'model_files')
+        const pivotData = processed[config.through];
+
+        if (Array.isArray(pivotData)) {
+          // Преобразуем массив
+          processed[alias] = pivotData.map(item => {
+            // item - это объект промежуточной таблицы { id: 1, sort_order: 0, files: {...} }
+
+            // 1. Ищем данные целевой таблицы внутри (ключ = config.table, напр. 'files')
+            const targetData = item[config.table];
+
+            if (!targetData) return item; // Если что-то пошло не так
+
+            // 2. Отделяем данные связи (всё кроме целевого объекта)
+            const joinData = { ...item };
+            delete joinData[config.table]; // Удаляем вложенный объект files
+
+            // 3. Формируем красивый объект: Данные файла + _joinData
+            return {
+              ...targetData,
+              _joinData: joinData
+            };
+          });
+
+          // Удаляем старый ключ промежуточной таблицы, чтобы не мусорить
+          // (если алиас отличается от имени таблицы)
+          if (alias !== config.through) {
+            delete processed[config.through];
+          }
+        }
+      });
+    }
+    return processed;
+  }
+
+  // src/Model/BaseModel.js
+
+  /**
+   * Собирает и нормализует все связи модели.
+   * * @param {Array} contain - (Опционально) Список алиасов, которые нужно включить. 
+   * Если не передан, возвращаются ВСЕ связи.
+   * Пример: ['category', 'images']
+   */
+  _getRelations(contain = null) {
+    const allRelations = {
+      belongsTo: this.belongsTo || {},
+      hasMany: this.hasMany || {},
+      belongsToMany: this.belongsToMany || {}
+    };
+
+    const result = {
+      belongsTo: {},
+      hasMany: {},
+      belongsToMany: {}
+    };
+
+    // Проходим по всем типам связей (belongsTo, hasMany...)
+    Object.keys(allRelations).forEach(type => {
+      const relationsOfType = allRelations[type];
+
+      Object.keys(relationsOfType).forEach(alias => {
+        // 1. Фильтрация (аналог contain в CakePHP)
+        // Если передан массив contain и текущего алиаса там нет — пропускаем
+        if (contain && !contain.includes(alias)) {
+          return;
+        }
+
+        const config = relationsOfType[alias];
+
+        // 2. Нормализация (Convention over Configuration)
+        // Если конфиг не задан (null), считаем пустым объектом
+        const normalizedConfig = config || {};
+
+        // Если имя таблицы не указано явно, используем алиас
+        // Пример: this.belongsTo = { category: {} } -> table: 'categories' (или 'category')
+        if (!normalizedConfig.table) {
+          normalizedConfig.table = alias;
+        }
+
+        // 3. Записываем в результат
+        result[type][alias] = normalizedConfig;
+      });
+    });
+
+    return result;
   }
 
   // Сохранить (Create или Update) - в стиле CakePHP save()
@@ -158,18 +240,6 @@ export class BaseModel {
 
     return result.data[0];
   }
-
-  /** DELETE!
-    async delete(id) {
-      const { error } = await this.db // Используем динамический клиент
-        .from(this.table)
-        .delete()
-        .eq(this.primaryKey, id);
-  
-      if (error) throw error;
-      return true;
-    }
-      */
 
   // Удалить
   async delete(id) {
