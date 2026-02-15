@@ -8,8 +8,13 @@
     "src"
   ],
   "scripts": {
-    "test": "echo \"No tests yet\"",
-    "release": "npm version patch && npm publish && git push --follow-tags"
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:guard": "vitest run tests/ai_guardrails",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "release": "npm version patch && npm publish && git push --follow-tags",
+    "bundle_context": "node bundle_context.js"
   },
   "keywords": [
     "react",
@@ -38,5 +43,8 @@
   },
   "exports": {
     ".": "./src/index.js"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
   }
 }

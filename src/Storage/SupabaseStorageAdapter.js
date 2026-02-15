@@ -1,5 +1,5 @@
 // src/Storage/SupabaseStorageAdapter.js
-import { BaseStorageAdapter } from '../index';
+import { BaseStorageAdapter } from './BaseStorageAdapter';
 
 export class SupabaseStorageAdapter extends BaseStorageAdapter {
     async upload(path, file) {
